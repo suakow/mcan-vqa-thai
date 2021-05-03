@@ -81,6 +81,7 @@ def tokenize(stat_ques_list, pretrain_name='airesearch/wangchanberta-base-att-sp
     tokenizer = CamembertTokenizerFast.from_pretrained(pretrain_name)
     tokenized_dataset = []
     for q in stat_ques_list :
+        q = q['question']
         q = q.lower()
         q = normalize(q)
         tokenized_dataset.append(tokenizer(q, padding='max_length'))

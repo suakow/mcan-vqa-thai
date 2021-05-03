@@ -32,8 +32,6 @@ class Execution:
             print('Loading validation set for per-epoch evaluation ........')
             self.dataset_eval = DataSet(__C_eval)
 
-        exit(-1)
-
 
     def train(self, dataset, dataset_eval=None):
 
@@ -120,6 +118,8 @@ class Execution:
                 pin_memory=self.__C.PIN_MEM,
                 drop_last=True
             )
+
+        exit(-1)
 
         # Training script
         for epoch in range(start_epoch, self.__C.MAX_EPOCH):

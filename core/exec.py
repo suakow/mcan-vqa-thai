@@ -32,6 +32,8 @@ class Execution:
             print('Loading validation set for per-epoch evaluation ........')
             self.dataset_eval = DataSet(__C_eval)
 
+        exit(-1)
+
 
     def train(self, dataset, dataset_eval=None):
 

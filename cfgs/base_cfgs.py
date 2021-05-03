@@ -4,6 +4,27 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from cfgs.path_cfgs import PATH
 # from path_cfgs import PATH
 
@@ -15,6 +36,10 @@ from types import MethodType
 class Cfgs(PATH):
     def __init__(self):
         super(Cfgs, self).__init__()
+
+        # ****** BERT *********
+        self.PRETRAINED_NAME = 'airesearch/wangchanberta-base-att-spm-uncased'
+        self.BERT_MAXLEN = 416
 
         # Set Devices
         # If use multi-gpu training, set e.g.'0, 1, 2' instead

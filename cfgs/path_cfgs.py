@@ -48,7 +48,7 @@ class PATH:
         self.ANSWER_PATH = {
             'train': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
             'val': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
-            'vg': self.DATASET_PATH + 'VG_annotations.json',
+            # 'vg': self.DATASET_PATH + 'VG_annotations.json',
         }
 
         # self.ANSWER_PATH = {

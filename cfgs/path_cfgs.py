@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* UV Irradiance Prediction Project
+*
+* Created date : 12/03/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- daily_infer.py
+    o           +
++      +     o        o      +
+"""
+
 import os
 
 class PATH:
@@ -56,6 +80,8 @@ class PATH:
         #     'val': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
         #     'vg': self.DATASET_PATH + 'VG_annotations.json',
         # }
+
+        self.ANSWER_DICT = self.DATASET_PATH + 'answer_100.json'
 
         self.RESULT_PATH = './results/result_test/'
         self.PRED_PATH = './results/pred/'

@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* UV Irradiance Prediction Project
+*
+* Created date : 12/03/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- daily_infer.py
+    o           +
++      +     o        o      +
+"""
+
 from core.data.ans_punct import prep_ans
 import numpy as np
 import en_vectors_web_lg, random, re, json

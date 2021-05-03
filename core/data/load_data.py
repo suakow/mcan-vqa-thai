@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* UV Irradiance Prediction Project
+*
+* Created date : 12/03/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- daily_infer.py
+    o           +
++      +     o        o      +
+"""
+
 from core.data.data_utils import img_feat_path_load, img_feat_load, ques_load, tokenize, ans_stat
 from core.data.data_utils import proc_img_feat, proc_ques, proc_ans
 
@@ -91,7 +115,7 @@ class DataSet(Data.Dataset):
         # {question id} -> {question}
         self.qid_to_ques = ques_load(self.ques_list)
 
-        # Tokenize
+        # Tokenize -> Text Preprocessing
         self.token_to_ix, self.pretrained_emb = tokenize(self.stat_ques_list, __C.USE_GLOVE)
         self.token_size = self.token_to_ix.__len__()
         print('== Question token vocab size:', self.token_size)
@@ -106,7 +130,8 @@ class DataSet(Data.Dataset):
         # for finding this bug and providing the solutions.
 
         # self.ans_to_ix, self.ix_to_ans = ans_stat(self.stat_ans_list, __C.ANS_FREQ)
-        self.ans_to_ix, self.ix_to_ans = ans_stat('core/data/answer_dict.json')
+        # self.ans_to_ix, self.ix_to_ans = ans_stat('core/data/answer_dict.json')
+        self.ans_to_ix, self.ix_to_ans = ans_stat(__C.ANSWER_DICT)
         self.ans_size = self.ans_to_ix.__len__()
         print('== Answer vocab size (occurr more than {} times):'.format(8), self.ans_size)
         print('Finished!')

@@ -116,9 +116,11 @@ class DataSet(Data.Dataset):
         self.qid_to_ques = ques_load(self.ques_list)
 
         # Tokenize -> Text Preprocessing
-        self.token_to_ix, self.pretrained_emb = tokenize(self.stat_ques_list, __C.USE_GLOVE)
-        self.token_size = self.token_to_ix.__len__()
-        print('== Question token vocab size:', self.token_size)
+        self.tokens_for_bert = tokenize(self.stat_ques_list, pretrain_name=__C.PRETRAINED_NAME, maxlen=__C.BERT_MAXLEN)
+        # self.token_to_ix, self.pretrained_emb = tokenize(self.stat_ques_list, __C.USE_GLOVE)
+        # self.token_size = self.token_to_ix.__len__()
+        print('== Len Question : ', self.tokens_for_bert)
+        # print('== Question token vocab size:', self.token_size)
 
         # Answers statistic
         # Make answer dict during training does not guarantee

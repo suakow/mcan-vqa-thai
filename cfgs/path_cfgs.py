@@ -57,9 +57,9 @@ class PATH:
         # }
 
         self.QUESTION_PATH = {
-            'train': self.DATASET_PATH + 'v2_OpenEnded_mscoco_val2014_questions.json',
-            'val': self.DATASET_PATH + 'v2_OpenEnded_mscoco_val2014_questions.json',
-            'test': self.DATASET_PATH + 'v2_OpenEnded_mscoco_val2014_questions.json',
+            'train': self.DATASET_PATH + 'question_100.json',
+            'val': self.DATASET_PATH + 'question_100.json',
+            'test': self.DATASET_PATH + 'question_100.json',
         }
 
         # self.QUESTION_PATH = {
@@ -70,8 +70,8 @@ class PATH:
         # }
 
         self.ANSWER_PATH = {
-            'train': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
-            'val': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
+            'train': self.DATASET_PATH + 'answer_100.json',
+            'val': self.DATASET_PATH + 'answer_100.json',
             # 'vg': self.DATASET_PATH + 'VG_annotations.json',
         }
 
@@ -81,7 +81,7 @@ class PATH:
         #     'vg': self.DATASET_PATH + 'VG_annotations.json',
         # }
 
-        self.ANSWER_DICT = self.DATASET_PATH + 'answer_100.json'
+        self.ANSWER_DICT = self.DATASET_PATH + 'answer_dict_th.json'
 
         self.RESULT_PATH = './results/result_test/'
         self.PRED_PATH = './results/pred/'

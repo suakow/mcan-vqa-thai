@@ -97,6 +97,8 @@ class Execution:
         named_params = list(net.named_parameters())
         grad_norm = np.zeros(len(named_params))
 
+        print('Prepare dataloader')
+
         # Define multi-thread dataloader
         if self.__C.SHUFFLE_MODE in ['external']:
             dataloader = Data.DataLoader(

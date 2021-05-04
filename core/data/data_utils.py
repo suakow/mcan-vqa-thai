@@ -167,7 +167,7 @@ def proc_img_feat(img_feat, img_feat_pad_size):
     return img_feat
 
 def proc_ques(ques, pretrain_name='airesearch/wangchanberta-base-att-spm-uncased', maxlen = 416):
-    tokenizer = CamembertTokenizerFast.from_pretrained(pretrain_name)
+    tokenizer = CamembertTokenizerFast.from_pretrained(pretrain_name, model_max_length=maxlen)
     q = ques['question']
     q = q.lower()
     q = normalize(q)
@@ -226,20 +226,31 @@ def get_score(occur):
         return 1.
 
 
+# def proc_ans(ans, ans_to_ix):
+#     ans_score = np.zeros(ans_to_ix.__len__(), np.float32)
+#     ans_prob_dict = {}
+
+#     for ans_ in ans['answers']:
+#         ans_proc = prep_ans(ans_['answer'])
+#         if ans_proc not in ans_prob_dict:
+#             ans_prob_dict[ans_proc] = 1
+#         else:
+#             ans_prob_dict[ans_proc] += 1
+
+#     for ans_ in ans_prob_dict:
+#         if ans_ in ans_to_ix:
+#             ans_score[ans_to_ix[ans_]] = get_score(ans_prob_dict[ans_])
+
+#     return ans_score
+
 def proc_ans(ans, ans_to_ix):
     ans_score = np.zeros(ans_to_ix.__len__(), np.float32)
-    ans_prob_dict = {}
 
-    for ans_ in ans['answers']:
-        ans_proc = prep_ans(ans_['answer'])
-        if ans_proc not in ans_prob_dict:
-            ans_prob_dict[ans_proc] = 1
-        else:
-            ans_prob_dict[ans_proc] += 1
+    if ans['multiple_choice_answer'] in ans_to_ix :
+        ans_score[ans_to_ix[ans['multiple_choice_answer']]] = 1.0
 
-    for ans_ in ans_prob_dict:
-        if ans_ in ans_to_ix:
-            ans_score[ans_to_ix[ans_]] = get_score(ans_prob_dict[ans_])
+    else :
+        ans_score[ans_to_ix['0']] = 1.0
 
     return ans_score
 

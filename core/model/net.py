@@ -123,7 +123,8 @@ class Net(nn.Module):
     def forward(self, img_feat, ques_input_id, question_attention_mask):
 
         # Make mask
-        lang_feat_mask = question_attention_mask
+        # lang_feat_mask = question_attention_mask
+        lang_feat_mask = question_attention_mask == 0
         # lang_feat_mask = self.make_mask(ques_ix.unsqueeze(2))
         img_feat_mask = self.make_mask(img_feat)
 
@@ -136,11 +137,19 @@ class Net(nn.Module):
         # Pre-process Image Feature
         img_feat = self.img_feat_linear(img_feat)
 
+        # print('shape before attention')
+        # print(lang_feat_last.shape)
+        # print(img_feat.shape)
+        # print(lang_feat_mask.shape)
+        # print(img_feat_mask.shape)
+
+        # print(lang_feat_mask)
+
         # Backbone Framework
         lang_feat, img_feat = self.backbone(
             lang_feat_last,
             img_feat,
-            lang_feat_mask,
+            lang_feat_mask.unsqueeze(1).unsqueeze(1),
             img_feat_mask
         )
 

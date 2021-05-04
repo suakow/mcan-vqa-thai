@@ -89,9 +89,14 @@ class MHAtt(nn.Module):
     def att(self, value, key, query, mask):
         d_k = query.size(-1)
 
+        # print('att shape : ', value.shape, key.shape, query.shape, mask.shape)
+
         scores = torch.matmul(
             query, key.transpose(-2, -1)
         ) / math.sqrt(d_k)
+
+        # print('mask :', mask,)
+        # print('score:', scores)
 
         if mask is not None:
             scores = scores.masked_fill(mask, -1e9)

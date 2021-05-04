@@ -341,14 +341,12 @@ class Execution:
         pred_list = []
 
         data_size = dataset.data_size
-        token_size = dataset.token_size
+        # token_size = dataset.token_size
         ans_size = dataset.ans_size
-        pretrained_emb = dataset.pretrained_emb
+        # pretrained_emb = dataset.pretrained_emb
 
         net = Net(
             self.__C,
-            pretrained_emb,
-            token_size,
             ans_size
         )
         net.cuda()
@@ -369,8 +367,9 @@ class Execution:
 
         for step, (
                 img_feat_iter,
-                ques_ix_iter,
-                ans_iter
+                ans_iter,
+                ques_input_idx,
+                ques_attention_mask
         ) in enumerate(dataloader):
             print("\rEvaluation: [step %4d/%4d]" % (
                 step,
@@ -378,11 +377,14 @@ class Execution:
             ), end='          ')
 
             img_feat_iter = img_feat_iter.cuda()
-            ques_ix_iter = ques_ix_iter.cuda()
+            ans_iter = ans_iter.cuda()
+            ques_input_idx = ques_input_idx.cuda()
+            ques_attention_mask = ques_attention_mask.cuda()
 
             pred = net(
                 img_feat_iter,
-                ques_ix_iter
+                ques_input_idx.squeeze(1),
+                ques_attention_mask.squeeze(1)
             )
             pred_np = pred.cpu().data.numpy()
             pred_argmax = np.argmax(pred_np, axis=1)

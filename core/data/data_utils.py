@@ -166,26 +166,51 @@ def proc_img_feat(img_feat, img_feat_pad_size):
 
     return img_feat
 
+def proc_ques(ques, pretrain_name='airesearch/wangchanberta-base-att-spm-uncased', maxlen = 416):
+    tokenizer = CamembertTokenizerFast.from_pretrained(pretrain_name)
+    q = ques['question']
+    q = q.lower()
+    q = normalize(q)
+    return tokenizer(q, padding='max_length')
+    # ques_ix = np.zeros(max_token, np.int64)
 
-def proc_ques(ques, token_to_ix, max_token):
-    ques_ix = np.zeros(max_token, np.int64)
+    # words = re.sub(
+    #     r"([.,'!?\"()*#:;])",
+    #     '',
+    #     ques['question'].lower()
+    # ).replace('-', ' ').replace('/', ' ').split()
 
-    words = re.sub(
-        r"([.,'!?\"()*#:;])",
-        '',
-        ques['question'].lower()
-    ).replace('-', ' ').replace('/', ' ').split()
+    # for ix, word in enumerate(words):
+    #     if word in token_to_ix:
+    #         ques_ix[ix] = token_to_ix[word]
+    #     else:
+    #         ques_ix[ix] = token_to_ix['UNK']
 
-    for ix, word in enumerate(words):
-        if word in token_to_ix:
-            ques_ix[ix] = token_to_ix[word]
-        else:
-            ques_ix[ix] = token_to_ix['UNK']
-
-        if ix + 1 == max_token:
-            break
+    #     if ix + 1 == max_token:
+    #         break
 
     return ques_ix
+
+
+# def proc_ques(ques, token_to_ix, max_token):
+#     ques_ix = np.zeros(max_token, np.int64)
+
+#     words = re.sub(
+#         r"([.,'!?\"()*#:;])",
+#         '',
+#         ques['question'].lower()
+#     ).replace('-', ' ').replace('/', ' ').split()
+
+#     for ix, word in enumerate(words):
+#         if word in token_to_ix:
+#             ques_ix[ix] = token_to_ix[word]
+#         else:
+#             ques_ix[ix] = token_to_ix['UNK']
+
+#         if ix + 1 == max_token:
+#             break
+
+#     return ques_ix
 
 
 def get_score(occur):

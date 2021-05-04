@@ -116,10 +116,10 @@ class DataSet(Data.Dataset):
         self.qid_to_ques = ques_load(self.ques_list)
 
         # Tokenize -> Text Preprocessing
-        self.tokens_for_bert = tokenize(self.stat_ques_list, pretrain_name=__C.PRETRAINED_NAME, maxlen=__C.BERT_MAXLEN)
+        # self.tokens_for_bert = tokenize(self.stat_ques_list, pretrain_name=__C.PRETRAINED_NAME, maxlen=__C.BERT_MAXLEN)
         # self.token_to_ix, self.pretrained_emb = tokenize(self.stat_ques_list, __C.USE_GLOVE)
         # self.token_size = self.token_to_ix.__len__()
-        print('== Len Question : ', len(self.tokens_for_bert))
+        # print('== Len Question : ', len(self.tokens_for_bert))
         # print('== Question token vocab size:', self.token_size)
 
         # Answers statistic
@@ -162,7 +162,10 @@ class DataSet(Data.Dataset):
             img_feat_iter = proc_img_feat(img_feat_x, self.__C.IMG_FEAT_PAD_SIZE)
 
             # Process question
-            ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            # ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            ques_ix_iter = proc_ques(ques)
+            ques_input_idx = ques_ix_iter['input_ids']
+            ques_attention_mask = ques_ix_iter['attention_mask']
 
             # Process answer
             ans_iter = proc_ans(ans, self.ans_to_ix)
@@ -187,8 +190,7 @@ class DataSet(Data.Dataset):
 
 
         return torch.from_numpy(img_feat_iter), \
-               torch.from_numpy(ques_ix_iter), \
-               torch.from_numpy(ans_iter)
+               torch.from_numpy(ans_iter), ques_input_idx, ques_attention_mask
 
 
     def __len__(self):

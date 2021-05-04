@@ -96,24 +96,25 @@ class Net(nn.Module):
         self.proj = nn.Linear(__C.FLAT_OUT_SIZE, answer_size)
 
 
-    def forward(self, img_feat, ques_ix):
+    def forward(self, img_feat, ques_input_id, question_attention_mask):
 
         # Make mask
-        lang_feat_mask = ques_ix['attention_mask']
+        lang_feat_mask = question_attention_mask
         # lang_feat_mask = self.make_mask(ques_ix.unsqueeze(2))
         img_feat_mask = self.make_mask(img_feat)
 
         # Pre-process Language Feature
-        lang_feat = self.roberta_layer(**ques_ix)
+        lang_feat = self.roberta_layer(input_ids=ques_input_id, attention_mask=question_attention_mask)
         # lang_feat = self.embedding(ques_ix)
         # lang_feat, _ = self.lstm(lang_feat)
+        lang_feat_last = lang_feat['last_hidden_state ']
 
         # Pre-process Image Feature
         img_feat = self.img_feat_linear(img_feat)
 
         # Backbone Framework
         lang_feat, img_feat = self.backbone(
-            lang_feat,
+            lang_feat_last,
             img_feat,
             lang_feat_mask,
             img_feat_mask

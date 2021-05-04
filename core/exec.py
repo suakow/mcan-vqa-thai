@@ -117,7 +117,7 @@ class Execution:
                 drop_last=True
             )
 
-        exit(-1)
+        # exit(-1)
 
         # Training script
         for epoch in range(start_epoch, self.__C.MAX_EPOCH):

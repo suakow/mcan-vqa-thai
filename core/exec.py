@@ -37,15 +37,13 @@ class Execution:
 
         # Obtain needed information
         data_size = dataset.data_size
-        token_size = dataset.token_size
+        # token_size = dataset.token_size
         ans_size = dataset.ans_size
-        pretrained_emb = dataset.pretrained_emb
+        # pretrained_emb = dataset.pretrained_emb
 
         # Define the MCAN model
         net = Net(
             self.__C,
-            pretrained_emb,
-            token_size,
             ans_size
         )
         net.cuda()

@@ -11,6 +11,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 
+from transformers import RobertaModel
+
 
 # ------------------------------
 # ---- Flatten the sequence ----
@@ -59,24 +61,26 @@ class AttFlat(nn.Module):
 # -------------------------
 
 class Net(nn.Module):
-    def __init__(self, __C, pretrained_emb, token_size, answer_size):
+    def __init__(self, __C, answer_size):
         super(Net, self).__init__()
 
-        self.embedding = nn.Embedding(
-            num_embeddings=token_size,
-            embedding_dim=__C.WORD_EMBED_SIZE
-        )
+        self.roberta_layer = RobertaModel.from_pretrained(__C.PRETRAINED_NAME, revision='main')
 
-        # Loading the GloVe embedding weights
-        if __C.USE_GLOVE:
-            self.embedding.weight.data.copy_(torch.from_numpy(pretrained_emb))
+        # self.embedding = nn.Embedding(
+        #     num_embeddings=token_size,
+        #     embedding_dim=__C.WORD_EMBED_SIZE
+        # )
 
-        self.lstm = nn.LSTM(
-            input_size=__C.WORD_EMBED_SIZE,
-            hidden_size=__C.HIDDEN_SIZE,
-            num_layers=1,
-            batch_first=True
-        )
+        # # Loading the GloVe embedding weights
+        # if __C.USE_GLOVE:
+        #     self.embedding.weight.data.copy_(torch.from_numpy(pretrained_emb))
+
+        # self.lstm = nn.LSTM(
+        #     input_size=__C.WORD_EMBED_SIZE,
+        #     hidden_size=__C.HIDDEN_SIZE,
+        #     num_layers=1,
+        #     batch_first=True
+        # )
 
         self.img_feat_linear = nn.Linear(
             __C.IMG_FEAT_SIZE,
@@ -95,12 +99,14 @@ class Net(nn.Module):
     def forward(self, img_feat, ques_ix):
 
         # Make mask
-        lang_feat_mask = self.make_mask(ques_ix.unsqueeze(2))
+        lang_feat_mask = ques_ix['attention_mask']
+        # lang_feat_mask = self.make_mask(ques_ix.unsqueeze(2))
         img_feat_mask = self.make_mask(img_feat)
 
         # Pre-process Language Feature
-        lang_feat = self.embedding(ques_ix)
-        lang_feat, _ = self.lstm(lang_feat)
+        lang_feat = self.roberta_layer(**ques_ix)
+        # lang_feat = self.embedding(ques_ix)
+        # lang_feat, _ = self.lstm(lang_feat)
 
         # Pre-process Image Feature
         img_feat = self.img_feat_linear(img_feat)

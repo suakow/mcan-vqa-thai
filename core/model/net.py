@@ -107,7 +107,7 @@ class Net(nn.Module):
         lang_feat = self.roberta_layer(input_ids=ques_input_id, attention_mask=question_attention_mask)
         # lang_feat = self.embedding(ques_ix)
         # lang_feat, _ = self.lstm(lang_feat)
-        lang_feat_last = lang_feat['last_hidden_state ']
+        lang_feat_last = lang_feat['last_hidden_state']
 
         # Pre-process Image Feature
         img_feat = self.img_feat_linear(img_feat)

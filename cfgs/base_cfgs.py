@@ -106,7 +106,8 @@ class Cfgs(PATH):
         self.WORD_EMBED_SIZE = 300
 
         # Max length of question sentences
-        self.MAX_TOKEN = 14
+        # self.MAX_TOKEN = 14
+        self.MAX_TOKEN = 416
 
         # Filter the answer by occurrence
         # self.ANS_FREQ = 8

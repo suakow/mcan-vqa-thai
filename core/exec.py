@@ -149,24 +149,29 @@ class Execution:
             # Iteration
             for step, (
                     img_feat_iter,
-                    ques_ix_iter,
-                    ans_iter
+                    ans_iter,
+                    ques_input_idx,
+                    ques_attention_mask
             ) in enumerate(dataloader):
 
                 optim.zero_grad()
-
                 img_feat_iter = img_feat_iter.cuda()
-                ques_ix_iter = ques_ix_iter.cuda()
                 ans_iter = ans_iter.cuda()
+                ques_input_idx = ques_input_idx.cuda()
+                ques_attention_mask = ques_attention_mask.cuda()
 
                 for accu_step in range(self.__C.GRAD_ACCU_STEPS):
 
                     sub_img_feat_iter = \
                         img_feat_iter[accu_step * self.__C.SUB_BATCH_SIZE:
                                       (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
-                    sub_ques_ix_iter = \
-                        ques_ix_iter[accu_step * self.__C.SUB_BATCH_SIZE:
-                                     (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+                    # sub_ques_ix_iter = \
+                    #     ques_ix_iter[accu_step * self.__C.SUB_BATCH_SIZE:
+                    #                  (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+
+                    ques_input_idx = ques_input_idx[accu_step * self.__C.SUB_BATCH_SIZE: (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+                    ques_attention_mask = ques_attention_mask[accu_step * self.__C.SUB_BATCH_SIZE: (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+
                     sub_ans_iter = \
                         ans_iter[accu_step * self.__C.SUB_BATCH_SIZE:
                                  (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
@@ -174,7 +179,8 @@ class Execution:
 
                     pred = net(
                         sub_img_feat_iter,
-                        sub_ques_ix_iter
+                        ques_input_idx.squeeze(1),
+                        ques_attention_mask.squeeze(1)
                     )
 
                     loss = loss_fn(pred, sub_ans_iter)

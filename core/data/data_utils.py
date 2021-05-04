@@ -171,7 +171,7 @@ def proc_ques(ques, pretrain_name='airesearch/wangchanberta-base-att-spm-uncased
     q = ques['question']
     q = q.lower()
     q = normalize(q)
-    return tokenizer(q, padding='max_length')
+    return tokenizer(q, return_tensors="pt", padding='max_length')
     # ques_ix = np.zeros(max_token, np.int64)
 
     # words = re.sub(

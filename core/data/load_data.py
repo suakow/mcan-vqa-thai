@@ -186,7 +186,10 @@ class DataSet(Data.Dataset):
             img_feat_iter = proc_img_feat(img_feat_x, self.__C.IMG_FEAT_PAD_SIZE)
 
             # Process question
-            ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            # ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            ques_ix_iter = proc_ques(ques)
+            ques_input_idx = ques_ix_iter['input_ids']
+            ques_attention_mask = ques_ix_iter['attention_mask']
 
 
         return torch.from_numpy(img_feat_iter), \

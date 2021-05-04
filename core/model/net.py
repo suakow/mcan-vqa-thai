@@ -105,6 +105,12 @@ class Net(nn.Module):
         # Pre-process Image Feature
         img_feat = self.img_feat_linear(img_feat)
 
+        print('shape before attention')
+        print(lang_feat.shape)
+        print(img_feat.shape)
+        print(lang_feat_mask.shape)
+        print(img_feat_mask.shape)
+
         # Backbone Framework
         lang_feat, img_feat = self.backbone(
             lang_feat,

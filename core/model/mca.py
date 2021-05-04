@@ -65,6 +65,8 @@ class MHAtt(nn.Module):
     def att(self, value, key, query, mask):
         d_k = query.size(-1)
 
+        print('att shape : ', value.shape, key.shape, query.shape, mask.shape)
+
         scores = torch.matmul(
             query, key.transpose(-2, -1)
         ) / math.sqrt(d_k)

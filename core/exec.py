@@ -40,6 +40,8 @@ import numpy as np
 import torch.nn as nn
 import torch.utils.data as Data
 
+from sklearn.metrics import accuracy_score
+
 
 class Execution:
     def __init__(self, __C):
@@ -335,6 +337,15 @@ class Execution:
             state_dict = torch.load(path)['state_dict']
             print('Finish!')
 
+        groundtruth_ans_list = dataset.ans_list
+        groundtruth_question_to_ans_dict = {}
+        for _ in groundtruth_ans_list :
+            if _['multiple_choice_answer'] in dataset.ans_to_ix :   
+                groundtruth_question_to_ans_dict[_['question_id']] = dataset.ans_to_ix[_['multiple_choice_answer']]
+
+            else :
+                groundtruth_question_to_ans_dict[_['question_id']] = dataset.ans_to_ix['0']
+
         # Store the prediction list
         qid_list = [ques['question_id'] for ques in dataset.ques_list]
         ans_ix_list = []
@@ -419,6 +430,30 @@ class Execution:
             'answer': dataset.ix_to_ans[str(ans_ix_list[qix])],  # ix_to_ans(load with json) keys are type of string
             'question_id': int(qid_list[qix])
         }for qix in range(qid_list.__len__())]
+
+        y_true = [] 
+        y_pred = []
+
+        for _ in result :
+            qid = _['question_id']
+            if qid in groundtruth_question_to_ans_dict :
+                y_pred.append(_['answer_id'])
+                y_true.append(groundtruth_question_to_ans_dict[qid])
+
+        acc = accuracy_score(y_true, y_pred)
+        print('acc :', acc)
+
+        logfile = open(
+                self.__C.CACHE_PATH + \
+                    'result_runacc_' + self.__C.CKPT_VERSION + \
+                    '.json',
+                'a+'
+            )
+        logfile.write(
+            'acc = ' + str(acc)
+        )
+        logfile.close()
+        
 
         # Write the results to result file
         if valid:

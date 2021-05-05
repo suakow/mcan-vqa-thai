@@ -86,6 +86,7 @@ class DataSet(Data.Dataset):
         split_list = __C.SPLIT[__C.RUN_MODE].split('+')
         for split in split_list:
             self.ques_list += json.load(open(__C.QUESTION_PATH[split], 'r'))['questions']
+            self.ans_list += json.load(open(__C.ANSWER_PATH[split], 'r'))['annotations']
             if __C.RUN_MODE in ['train']:
                 self.ans_list += json.load(open(__C.ANSWER_PATH[split], 'r'))['annotations']
 

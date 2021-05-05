@@ -57,9 +57,9 @@ class PATH:
         # }
 
         self.QUESTION_PATH = {
-            'train': self.DATASET_PATH + 'question_100.json',
-            'val': self.DATASET_PATH + 'question_100.json',
-            'test': self.DATASET_PATH + 'question_100.json',
+            'train': self.DATASET_PATH + 'question_train_8000.json',
+            'val': self.DATASET_PATH + 'question_test_2000.json',
+            'test': self.DATASET_PATH + 'question_test_2000.json',
         }
 
         # self.QUESTION_PATH = {
@@ -70,8 +70,8 @@ class PATH:
         # }
 
         self.ANSWER_PATH = {
-            'train': self.DATASET_PATH + 'answer_100.json',
-            'val': self.DATASET_PATH + 'answer_100.json',
+            'train': self.DATASET_PATH + 'answer_train_8000.json',
+            'val': self.DATASET_PATH + 'answer_test_2000.json',
             # 'vg': self.DATASET_PATH + 'VG_annotations.json',
         }
 

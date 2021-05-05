@@ -428,7 +428,8 @@ class Execution:
 
         result = [{
             'answer': dataset.ix_to_ans[str(ans_ix_list[qix])],  # ix_to_ans(load with json) keys are type of string
-            'question_id': int(qid_list[qix])
+            'question_id': int(qid_list[qix]),
+            'answer_id' : int(str(ans_ix_list[qix]))
         }for qix in range(qid_list.__len__())]
 
         y_true = [] 

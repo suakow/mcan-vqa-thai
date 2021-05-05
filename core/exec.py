@@ -457,123 +457,123 @@ class Execution:
         
 
         # Write the results to result file
-        if valid:
-            if val_ckpt_flag:
-                result_eval_file = \
-                    self.__C.CACHE_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '.json'
-            else:
-                result_eval_file = \
-                    self.__C.CACHE_PATH + \
-                    'result_run_' + self.__C.VERSION + \
-                    '.json'
+        # if valid:
+        #     if val_ckpt_flag:
+        #         result_eval_file = \
+        #             self.__C.CACHE_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '.json'
+        #     else:
+        #         result_eval_file = \
+        #             self.__C.CACHE_PATH + \
+        #             'result_run_' + self.__C.VERSION + \
+        #             '.json'
 
-        else:
-            if self.__C.CKPT_PATH is not None:
-                result_eval_file = \
-                    self.__C.RESULT_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '.json'
-            else:
-                result_eval_file = \
-                    self.__C.RESULT_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '_epoch' + str(self.__C.CKPT_EPOCH) + \
-                    '.json'
+        # else:
+        #     if self.__C.CKPT_PATH is not None:
+        #         result_eval_file = \
+        #             self.__C.RESULT_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '.json'
+        #     else:
+        #         result_eval_file = \
+        #             self.__C.RESULT_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '_epoch' + str(self.__C.CKPT_EPOCH) + \
+        #             '.json'
 
-            print('Save the result to file: {}'.format(result_eval_file))
+        #     print('Save the result to file: {}'.format(result_eval_file))
 
-        json.dump(result, open(result_eval_file, 'w'))
+        # json.dump(result, open(result_eval_file, 'w'))
 
-        # Save the whole prediction vector
-        if self.__C.TEST_SAVE_PRED:
+        # # Save the whole prediction vector
+        # if self.__C.TEST_SAVE_PRED:
 
-            if self.__C.CKPT_PATH is not None:
-                ensemble_file = \
-                    self.__C.PRED_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '.json'
-            else:
-                ensemble_file = \
-                    self.__C.PRED_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '_epoch' + str(self.__C.CKPT_EPOCH) + \
-                    '.json'
+        #     if self.__C.CKPT_PATH is not None:
+        #         ensemble_file = \
+        #             self.__C.PRED_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '.json'
+        #     else:
+        #         ensemble_file = \
+        #             self.__C.PRED_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '_epoch' + str(self.__C.CKPT_EPOCH) + \
+        #             '.json'
 
-            print('Save the prediction vector to file: {}'.format(ensemble_file))
+        #     print('Save the prediction vector to file: {}'.format(ensemble_file))
 
-            pred_list = np.array(pred_list).reshape(-1, ans_size)
-            result_pred = [{
-                'pred': pred_list[qix],
-                'question_id': int(qid_list[qix])
-            }for qix in range(qid_list.__len__())]
+        #     pred_list = np.array(pred_list).reshape(-1, ans_size)
+        #     result_pred = [{
+        #         'pred': pred_list[qix],
+        #         'question_id': int(qid_list[qix])
+        #     }for qix in range(qid_list.__len__())]
 
-            pickle.dump(result_pred, open(ensemble_file, 'wb+'), protocol=-1)
+        #     pickle.dump(result_pred, open(ensemble_file, 'wb+'), protocol=-1)
 
 
-        # Run validation script
-        if valid:
-            # create vqa object and vqaRes object
-            ques_file_path = self.__C.QUESTION_PATH['val']
-            ans_file_path = self.__C.ANSWER_PATH['val']
+        # # Run validation script
+        # if valid:
+        #     # create vqa object and vqaRes object
+        #     ques_file_path = self.__C.QUESTION_PATH['val']
+        #     ans_file_path = self.__C.ANSWER_PATH['val']
 
-            vqa = VQA(ans_file_path, ques_file_path)
-            vqaRes = vqa.loadRes(result_eval_file, ques_file_path)
+        #     vqa = VQA(ans_file_path, ques_file_path)
+        #     vqaRes = vqa.loadRes(result_eval_file, ques_file_path)
 
-            # create vqaEval object by taking vqa and vqaRes
-            vqaEval = VQAEval(vqa, vqaRes, n=2)  # n is precision of accuracy (number of places after decimal), default is 2
+        #     # create vqaEval object by taking vqa and vqaRes
+        #     vqaEval = VQAEval(vqa, vqaRes, n=2)  # n is precision of accuracy (number of places after decimal), default is 2
 
-            # evaluate results
-            """
-            If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
-            By default it uses all the question ids in annotation file
-            """
-            vqaEval.evaluate()
+        #     # evaluate results
+        #     """
+        #     If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
+        #     By default it uses all the question ids in annotation file
+        #     """
+        #     vqaEval.evaluate()
 
-            # print accuracies
-            print("\n")
-            print("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
-            # print("Per Question Type Accuracy is the following:")
-            # for quesType in vqaEval.accuracy['perQuestionType']:
-            #     print("%s : %.02f" % (quesType, vqaEval.accuracy['perQuestionType'][quesType]))
-            # print("\n")
-            print("Per Answer Type Accuracy is the following:")
-            for ansType in vqaEval.accuracy['perAnswerType']:
-                print("%s : %.02f" % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
-            print("\n")
+        #     # print accuracies
+        #     print("\n")
+        #     print("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
+        #     # print("Per Question Type Accuracy is the following:")
+        #     # for quesType in vqaEval.accuracy['perQuestionType']:
+        #     #     print("%s : %.02f" % (quesType, vqaEval.accuracy['perQuestionType'][quesType]))
+        #     # print("\n")
+        #     print("Per Answer Type Accuracy is the following:")
+        #     for ansType in vqaEval.accuracy['perAnswerType']:
+        #         print("%s : %.02f" % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
+        #     print("\n")
 
-            if val_ckpt_flag:
-                print('Write to log file: {}'.format(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.CKPT_VERSION + '.txt',
-                    'a+')
-                )
+        #     if val_ckpt_flag:
+        #         print('Write to log file: {}'.format(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.CKPT_VERSION + '.txt',
+        #             'a+')
+        #         )
 
-                logfile = open(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.CKPT_VERSION + '.txt',
-                    'a+'
-                )
+        #         logfile = open(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.CKPT_VERSION + '.txt',
+        #             'a+'
+        #         )
 
-            else:
-                print('Write to log file: {}'.format(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.VERSION + '.txt',
-                    'a+')
-                )
+        #     else:
+        #         print('Write to log file: {}'.format(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.VERSION + '.txt',
+        #             'a+')
+        #         )
 
-                logfile = open(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.VERSION + '.txt',
-                    'a+'
-                )
+        #         logfile = open(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.VERSION + '.txt',
+        #             'a+'
+        #         )
 
-            logfile.write("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
-            for ansType in vqaEval.accuracy['perAnswerType']:
-                logfile.write("%s : %.02f " % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
-            logfile.write("\n\n")
-            logfile.close()
+        #     logfile.write("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
+        #     for ansType in vqaEval.accuracy['perAnswerType']:
+        #         logfile.write("%s : %.02f " % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
+        #     logfile.write("\n\n")
+        #     logfile.close()
 
 
     def run(self, run_mode):

@@ -446,7 +446,7 @@ class Execution:
         logfile = open(
                 self.__C.CACHE_PATH + \
                     'result_runacc_' + self.__C.CKPT_VERSION + \
-                    '.json',
+                    '.txt',
                 'a+'
             )
         logfile.write(

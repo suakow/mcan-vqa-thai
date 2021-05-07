@@ -81,7 +81,8 @@ class Execution:
 
         # Define the binary cross entropy loss
         # loss_fn = torch.nn.BCELoss(size_average=False).cuda()
-        loss_fn = torch.nn.BCELoss(reduction='sum').cuda()
+        # loss_fn = torch.nn.BCELoss(reduction='sum').cuda()
+        loss_fn = torch.nn.CrossEntropyLoss()
 
         # Load checkpoint if resume training
         if self.__C.RESUME:

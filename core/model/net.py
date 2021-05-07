@@ -119,7 +119,6 @@ class Net(nn.Module):
         self.proj_norm = LayerNorm(__C.FLAT_OUT_SIZE)
         self.proj = nn.Linear(__C.FLAT_OUT_SIZE, answer_size)
 
-
     def forward(self, img_feat, ques_input_id, question_attention_mask):
 
         # Make mask
@@ -165,7 +164,8 @@ class Net(nn.Module):
 
         proj_feat = lang_feat + img_feat
         proj_feat = self.proj_norm(proj_feat)
-        proj_feat = torch.sigmoid(self.proj(proj_feat))
+        # proj_feat = torch.sigmoid(self.proj(proj_feat))
+        proj_feat = self.proj(proj_feat)
 
         return proj_feat
 

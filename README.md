@@ -10,4 +10,8 @@ About the image feature, we used original extracted feature from original reposi
 
 ## Trianing
 
-You require Google Colaboratory-Pro with GPU enabled for training and inference.
+You require Google Colaboratory-Pro with GPU enabled for training and inference. If you setup you own environment, you can download dependencies required by this project with `requirement.txt`
+
+```
+$ pip install -r requirements.txt
+```

@@ -6,5 +6,7 @@ This repository is a part of term project of NLP course at Chulalongkorn Univers
 
 We used VQA 2.0 as dataset by selected 8,000 question-answer pairs as training set and 2,000 pairs as test set from original VQA 2.0 validation set. All of selected 10,000 question-answer pairs were translated to Thai by Google Translate and manually verified by our group.
 
-About the image feature, we used original extracted feature from original repository which able to download by this link[https://awma1-my.sharepoint.com/personal/yuz_l0_tn/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fyuz%5Fl0%5Ftn%2FDocuments%2Fshare%2Fmscoco%5Fbottom%5Fup%5Ffeatures&originalPath=aHR0cHM6Ly9hd21hMS1teS5zaGFyZXBvaW50LmNvbS86ZjovZy9wZXJzb25hbC95dXpfbDBfdG4vRXNmQmxibUsxUVpGaENPRnByNGM1SFVCelVWMGFIMmgxTWNuUEcxaldBeHl0UT9ydGltZT1TWE1KZjE0WjJVZw]
+About the image feature, we used original extracted feature from original repository which able to download by this [link](https://awma1-my.sharepoint.com/personal/yuz_l0_tn/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fyuz%5Fl0%5Ftn%2FDocuments%2Fshare%2Fmscoco%5Fbottom%5Fup%5Ffeatures&originalPath=aHR0cHM6Ly9hd21hMS1teS5zaGFyZXBvaW50LmNvbS86ZjovZy9wZXJzb25hbC95dXpfbDBfdG4vRXNmQmxibUsxUVpGaENPRnByNGM1SFVCelVWMGFIMmgxTWNuUEcxaldBeHl0UT9ydGltZT1TWE1KZjE0WjJVZw)
+
+## Trianing
 

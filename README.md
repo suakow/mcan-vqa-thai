@@ -15,3 +15,10 @@ You require Google Colaboratory-Pro with GPU enabled for training and inference.
 ```
 $ pip install -r requirements.txt
 ```
+
+And you have to download image feature by this [link](https://awma1-my.sharepoint.com/personal/yuz_l0_tn/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fyuz%5Fl0%5Ftn%2FDocuments%2Fshare%2Fmscoco%5Fbottom%5Fup%5Ffeatures&originalPath=aHR0cHM6Ly9hd21hMS1teS5zaGFyZXBvaW50LmNvbS86ZjovZy9wZXJzb25hbC95dXpfbDBfdG4vRXNmQmxibUsxUVpGaENPRnByNGM1SFVCelVWMGFIMmgxTWNuUEcxaldBeHl0UT9ydGltZT1TWE1KZjE0WjJVZw)
+
+The question-answer pairs for training and inference (test set) are included in this repository. You can find them at this [link](https://github.com/suakow/mcan-vqa-thai/tree/master/datasets/vqa).
+
+If you have done above steps. you can fine-tune the model for Thai language by this (xxx.ipynb)
+ 

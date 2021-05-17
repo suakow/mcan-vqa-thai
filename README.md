@@ -20,5 +20,5 @@ And you have to download image feature by this [link](https://awma1-my.sharepoin
 
 The question-answer pairs for training and inference (test set) are included in this repository. You can find them at this [link](https://github.com/suakow/mcan-vqa-thai/tree/master/datasets/vqa).
 
-If you have done above steps. you can fine-tune the model for Thai language by this (xxx.ipynb) by Google Colab or your machine. You have to change the image feature path before running.
+If you have done above steps. you can fine-tune the model for Thai language by [link](https://github.com/suakow/mcan-vqa-thai/blob/master/run_training.ipynb) by Google Colab or your machine. You have to change the image feature path before running. You can click this [link](https://colab.research.google.com/github/suakow/mcan-vqa-thai/blob/master/run_training.ipynb) to open with Google Colab directly.
  

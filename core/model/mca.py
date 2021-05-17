@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from core.model.net_utils import FC, MLP, LayerNorm
 
 import torch.nn as nn
@@ -65,9 +89,14 @@ class MHAtt(nn.Module):
     def att(self, value, key, query, mask):
         d_k = query.size(-1)
 
+        # print('att shape : ', value.shape, key.shape, query.shape, mask.shape)
+
         scores = torch.matmul(
             query, key.transpose(-2, -1)
         ) / math.sqrt(d_k)
+
+        # print('mask :', mask,)
+        # print('score:', scores)
 
         if mask is not None:
             scores = scores.masked_fill(mask, -1e9)

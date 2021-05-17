@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from core.data.data_utils import img_feat_path_load, img_feat_load, ques_load, tokenize, ans_stat
 from core.data.data_utils import proc_img_feat, proc_ques, proc_ans
 
@@ -42,8 +66,13 @@ class DataSet(Data.Dataset):
         self.stat_ques_list = \
             json.load(open(__C.QUESTION_PATH['train'], 'r'))['questions'] + \
             json.load(open(__C.QUESTION_PATH['val'], 'r'))['questions'] + \
-            json.load(open(__C.QUESTION_PATH['test'], 'r'))['questions'] + \
-            json.load(open(__C.QUESTION_PATH['vg'], 'r'))['questions']
+            json.load(open(__C.QUESTION_PATH['test'], 'r'))['questions']
+
+        # self.stat_ques_list = \
+        #     json.load(open(__C.QUESTION_PATH['train'], 'r'))['questions'] + \
+        #     json.load(open(__C.QUESTION_PATH['val'], 'r'))['questions'] + \
+        #     json.load(open(__C.QUESTION_PATH['test'], 'r'))['questions'] + \
+        #     json.load(open(__C.QUESTION_PATH['vg'], 'r'))['questions']
 
         # Loading answer word list
         # self.stat_ans_list = \
@@ -57,6 +86,7 @@ class DataSet(Data.Dataset):
         split_list = __C.SPLIT[__C.RUN_MODE].split('+')
         for split in split_list:
             self.ques_list += json.load(open(__C.QUESTION_PATH[split], 'r'))['questions']
+            self.ans_list += json.load(open(__C.ANSWER_PATH[split], 'r'))['annotations']
             if __C.RUN_MODE in ['train']:
                 self.ans_list += json.load(open(__C.ANSWER_PATH[split], 'r'))['annotations']
 
@@ -86,10 +116,12 @@ class DataSet(Data.Dataset):
         # {question id} -> {question}
         self.qid_to_ques = ques_load(self.ques_list)
 
-        # Tokenize
-        self.token_to_ix, self.pretrained_emb = tokenize(self.stat_ques_list, __C.USE_GLOVE)
-        self.token_size = self.token_to_ix.__len__()
-        print('== Question token vocab size:', self.token_size)
+        # Tokenize -> Text Preprocessing
+        # self.tokens_for_bert = tokenize(self.stat_ques_list, pretrain_name=__C.PRETRAINED_NAME, maxlen=__C.BERT_MAXLEN)
+        # self.token_to_ix, self.pretrained_emb = tokenize(self.stat_ques_list, __C.USE_GLOVE)
+        # self.token_size = self.token_to_ix.__len__()
+        # print('== Len Question : ', len(self.tokens_for_bert))
+        # print('== Question token vocab size:', self.token_size)
 
         # Answers statistic
         # Make answer dict during training does not guarantee
@@ -101,7 +133,8 @@ class DataSet(Data.Dataset):
         # for finding this bug and providing the solutions.
 
         # self.ans_to_ix, self.ix_to_ans = ans_stat(self.stat_ans_list, __C.ANS_FREQ)
-        self.ans_to_ix, self.ix_to_ans = ans_stat('core/data/answer_dict.json')
+        # self.ans_to_ix, self.ix_to_ans = ans_stat('core/data/answer_dict.json')
+        self.ans_to_ix, self.ix_to_ans = ans_stat(__C.ANSWER_DICT)
         self.ans_size = self.ans_to_ix.__len__()
         print('== Answer vocab size (occurr more than {} times):'.format(8), self.ans_size)
         print('Finished!')
@@ -130,7 +163,10 @@ class DataSet(Data.Dataset):
             img_feat_iter = proc_img_feat(img_feat_x, self.__C.IMG_FEAT_PAD_SIZE)
 
             # Process question
-            ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            # ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            ques_ix_iter = proc_ques(ques)
+            ques_input_idx = ques_ix_iter['input_ids']
+            ques_attention_mask = ques_ix_iter['attention_mask']
 
             # Process answer
             ans_iter = proc_ans(ans, self.ans_to_ix)
@@ -151,12 +187,14 @@ class DataSet(Data.Dataset):
             img_feat_iter = proc_img_feat(img_feat_x, self.__C.IMG_FEAT_PAD_SIZE)
 
             # Process question
-            ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            # ques_ix_iter = proc_ques(ques, self.token_to_ix, self.__C.MAX_TOKEN)
+            ques_ix_iter = proc_ques(ques)
+            ques_input_idx = ques_ix_iter['input_ids']
+            ques_attention_mask = ques_ix_iter['attention_mask']
 
 
         return torch.from_numpy(img_feat_iter), \
-               torch.from_numpy(ques_ix_iter), \
-               torch.from_numpy(ans_iter)
+               torch.from_numpy(ans_iter), ques_input_idx, ques_attention_mask
 
 
     def __len__(self):

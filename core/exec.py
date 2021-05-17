@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from core.data.load_data import DataSet
 from core.model.net import Net
 from core.model.optim import get_optim, adjust_lr
@@ -15,6 +39,8 @@ import os, json, torch, datetime, pickle, copy, shutil, time
 import numpy as np
 import torch.nn as nn
 import torch.utils.data as Data
+
+from sklearn.metrics import accuracy_score
 
 
 class Execution:
@@ -37,15 +63,13 @@ class Execution:
 
         # Obtain needed information
         data_size = dataset.data_size
-        token_size = dataset.token_size
+        # token_size = dataset.token_size
         ans_size = dataset.ans_size
-        pretrained_emb = dataset.pretrained_emb
+        # pretrained_emb = dataset.pretrained_emb
 
         # Define the MCAN model
         net = Net(
             self.__C,
-            pretrained_emb,
-            token_size,
             ans_size
         )
         net.cuda()
@@ -99,6 +123,8 @@ class Execution:
         named_params = list(net.named_parameters())
         grad_norm = np.zeros(len(named_params))
 
+        print('Prepare dataloader')
+
         # Define multi-thread dataloader
         if self.__C.SHUFFLE_MODE in ['external']:
             dataloader = Data.DataLoader(
@@ -118,6 +144,8 @@ class Execution:
                 pin_memory=self.__C.PIN_MEM,
                 drop_last=True
             )
+
+        # exit(-1)
 
         # Training script
         for epoch in range(start_epoch, self.__C.MAX_EPOCH):
@@ -147,24 +175,29 @@ class Execution:
             # Iteration
             for step, (
                     img_feat_iter,
-                    ques_ix_iter,
-                    ans_iter
+                    ans_iter,
+                    ques_input_idx,
+                    ques_attention_mask
             ) in enumerate(dataloader):
 
                 optim.zero_grad()
-
                 img_feat_iter = img_feat_iter.cuda()
-                ques_ix_iter = ques_ix_iter.cuda()
                 ans_iter = ans_iter.cuda()
+                ques_input_idx = ques_input_idx.cuda()
+                ques_attention_mask = ques_attention_mask.cuda()
 
                 for accu_step in range(self.__C.GRAD_ACCU_STEPS):
 
                     sub_img_feat_iter = \
                         img_feat_iter[accu_step * self.__C.SUB_BATCH_SIZE:
                                       (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
-                    sub_ques_ix_iter = \
-                        ques_ix_iter[accu_step * self.__C.SUB_BATCH_SIZE:
-                                     (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+                    # sub_ques_ix_iter = \
+                    #     ques_ix_iter[accu_step * self.__C.SUB_BATCH_SIZE:
+                    #                  (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+
+                    ques_input_idx = ques_input_idx[accu_step * self.__C.SUB_BATCH_SIZE: (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+                    ques_attention_mask = ques_attention_mask[accu_step * self.__C.SUB_BATCH_SIZE: (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
+
                     sub_ans_iter = \
                         ans_iter[accu_step * self.__C.SUB_BATCH_SIZE:
                                  (accu_step + 1) * self.__C.SUB_BATCH_SIZE]
@@ -172,7 +205,8 @@ class Execution:
 
                     pred = net(
                         sub_img_feat_iter,
-                        sub_ques_ix_iter
+                        ques_input_idx.squeeze(1),
+                        ques_attention_mask.squeeze(1)
                     )
 
                     loss = loss_fn(pred, sub_ans_iter)
@@ -303,20 +337,27 @@ class Execution:
             state_dict = torch.load(path)['state_dict']
             print('Finish!')
 
+        groundtruth_ans_list = dataset.ans_list
+        groundtruth_question_to_ans_dict = {}
+        for _ in groundtruth_ans_list :
+            if _['multiple_choice_answer'] in dataset.ans_to_ix :   
+                groundtruth_question_to_ans_dict[_['question_id']] = dataset.ans_to_ix[_['multiple_choice_answer']]
+
+            else :
+                groundtruth_question_to_ans_dict[_['question_id']] = dataset.ans_to_ix['0']
+
         # Store the prediction list
         qid_list = [ques['question_id'] for ques in dataset.ques_list]
         ans_ix_list = []
         pred_list = []
 
         data_size = dataset.data_size
-        token_size = dataset.token_size
+        # token_size = dataset.token_size
         ans_size = dataset.ans_size
-        pretrained_emb = dataset.pretrained_emb
+        # pretrained_emb = dataset.pretrained_emb
 
         net = Net(
             self.__C,
-            pretrained_emb,
-            token_size,
             ans_size
         )
         net.cuda()
@@ -337,8 +378,9 @@ class Execution:
 
         for step, (
                 img_feat_iter,
-                ques_ix_iter,
-                ans_iter
+                ans_iter,
+                ques_input_idx,
+                ques_attention_mask
         ) in enumerate(dataloader):
             print("\rEvaluation: [step %4d/%4d]" % (
                 step,
@@ -346,11 +388,14 @@ class Execution:
             ), end='          ')
 
             img_feat_iter = img_feat_iter.cuda()
-            ques_ix_iter = ques_ix_iter.cuda()
+            ans_iter = ans_iter.cuda()
+            ques_input_idx = ques_input_idx.cuda()
+            ques_attention_mask = ques_attention_mask.cuda()
 
             pred = net(
                 img_feat_iter,
-                ques_ix_iter
+                ques_input_idx.squeeze(1),
+                ques_attention_mask.squeeze(1)
             )
             pred_np = pred.cpu().data.numpy()
             pred_argmax = np.argmax(pred_np, axis=1)
@@ -383,127 +428,152 @@ class Execution:
 
         result = [{
             'answer': dataset.ix_to_ans[str(ans_ix_list[qix])],  # ix_to_ans(load with json) keys are type of string
-            'question_id': int(qid_list[qix])
+            'question_id': int(qid_list[qix]),
+            'answer_id' : int(str(ans_ix_list[qix]))
         }for qix in range(qid_list.__len__())]
 
+        y_true = [] 
+        y_pred = []
+
+        for _ in result :
+            qid = _['question_id']
+            if qid in groundtruth_question_to_ans_dict :
+                y_pred.append(_['answer_id'])
+                y_true.append(groundtruth_question_to_ans_dict[qid])
+
+        acc = accuracy_score(y_true, y_pred)
+        print('acc :', acc)
+
+        logfile = open(
+                self.__C.CACHE_PATH + \
+                    'result_runacc_' + self.__C.CKPT_VERSION + \
+                    '.txt',
+                'a+'
+            )
+        logfile.write(
+            'acc = ' + str(acc)
+        )
+        logfile.close()
+        
+
         # Write the results to result file
-        if valid:
-            if val_ckpt_flag:
-                result_eval_file = \
-                    self.__C.CACHE_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '.json'
-            else:
-                result_eval_file = \
-                    self.__C.CACHE_PATH + \
-                    'result_run_' + self.__C.VERSION + \
-                    '.json'
+        # if valid:
+        #     if val_ckpt_flag:
+        #         result_eval_file = \
+        #             self.__C.CACHE_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '.json'
+        #     else:
+        #         result_eval_file = \
+        #             self.__C.CACHE_PATH + \
+        #             'result_run_' + self.__C.VERSION + \
+        #             '.json'
 
-        else:
-            if self.__C.CKPT_PATH is not None:
-                result_eval_file = \
-                    self.__C.RESULT_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '.json'
-            else:
-                result_eval_file = \
-                    self.__C.RESULT_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '_epoch' + str(self.__C.CKPT_EPOCH) + \
-                    '.json'
+        # else:
+        #     if self.__C.CKPT_PATH is not None:
+        #         result_eval_file = \
+        #             self.__C.RESULT_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '.json'
+        #     else:
+        #         result_eval_file = \
+        #             self.__C.RESULT_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '_epoch' + str(self.__C.CKPT_EPOCH) + \
+        #             '.json'
 
-            print('Save the result to file: {}'.format(result_eval_file))
+        #     print('Save the result to file: {}'.format(result_eval_file))
 
-        json.dump(result, open(result_eval_file, 'w'))
+        # json.dump(result, open(result_eval_file, 'w'))
 
-        # Save the whole prediction vector
-        if self.__C.TEST_SAVE_PRED:
+        # # Save the whole prediction vector
+        # if self.__C.TEST_SAVE_PRED:
 
-            if self.__C.CKPT_PATH is not None:
-                ensemble_file = \
-                    self.__C.PRED_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '.json'
-            else:
-                ensemble_file = \
-                    self.__C.PRED_PATH + \
-                    'result_run_' + self.__C.CKPT_VERSION + \
-                    '_epoch' + str(self.__C.CKPT_EPOCH) + \
-                    '.json'
+        #     if self.__C.CKPT_PATH is not None:
+        #         ensemble_file = \
+        #             self.__C.PRED_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '.json'
+        #     else:
+        #         ensemble_file = \
+        #             self.__C.PRED_PATH + \
+        #             'result_run_' + self.__C.CKPT_VERSION + \
+        #             '_epoch' + str(self.__C.CKPT_EPOCH) + \
+        #             '.json'
 
-            print('Save the prediction vector to file: {}'.format(ensemble_file))
+        #     print('Save the prediction vector to file: {}'.format(ensemble_file))
 
-            pred_list = np.array(pred_list).reshape(-1, ans_size)
-            result_pred = [{
-                'pred': pred_list[qix],
-                'question_id': int(qid_list[qix])
-            }for qix in range(qid_list.__len__())]
+        #     pred_list = np.array(pred_list).reshape(-1, ans_size)
+        #     result_pred = [{
+        #         'pred': pred_list[qix],
+        #         'question_id': int(qid_list[qix])
+        #     }for qix in range(qid_list.__len__())]
 
-            pickle.dump(result_pred, open(ensemble_file, 'wb+'), protocol=-1)
+        #     pickle.dump(result_pred, open(ensemble_file, 'wb+'), protocol=-1)
 
 
-        # Run validation script
-        if valid:
-            # create vqa object and vqaRes object
-            ques_file_path = self.__C.QUESTION_PATH['val']
-            ans_file_path = self.__C.ANSWER_PATH['val']
+        # # Run validation script
+        # if valid:
+        #     # create vqa object and vqaRes object
+        #     ques_file_path = self.__C.QUESTION_PATH['val']
+        #     ans_file_path = self.__C.ANSWER_PATH['val']
 
-            vqa = VQA(ans_file_path, ques_file_path)
-            vqaRes = vqa.loadRes(result_eval_file, ques_file_path)
+        #     vqa = VQA(ans_file_path, ques_file_path)
+        #     vqaRes = vqa.loadRes(result_eval_file, ques_file_path)
 
-            # create vqaEval object by taking vqa and vqaRes
-            vqaEval = VQAEval(vqa, vqaRes, n=2)  # n is precision of accuracy (number of places after decimal), default is 2
+        #     # create vqaEval object by taking vqa and vqaRes
+        #     vqaEval = VQAEval(vqa, vqaRes, n=2)  # n is precision of accuracy (number of places after decimal), default is 2
 
-            # evaluate results
-            """
-            If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
-            By default it uses all the question ids in annotation file
-            """
-            vqaEval.evaluate()
+        #     # evaluate results
+        #     """
+        #     If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
+        #     By default it uses all the question ids in annotation file
+        #     """
+        #     vqaEval.evaluate()
 
-            # print accuracies
-            print("\n")
-            print("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
-            # print("Per Question Type Accuracy is the following:")
-            # for quesType in vqaEval.accuracy['perQuestionType']:
-            #     print("%s : %.02f" % (quesType, vqaEval.accuracy['perQuestionType'][quesType]))
-            # print("\n")
-            print("Per Answer Type Accuracy is the following:")
-            for ansType in vqaEval.accuracy['perAnswerType']:
-                print("%s : %.02f" % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
-            print("\n")
+        #     # print accuracies
+        #     print("\n")
+        #     print("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
+        #     # print("Per Question Type Accuracy is the following:")
+        #     # for quesType in vqaEval.accuracy['perQuestionType']:
+        #     #     print("%s : %.02f" % (quesType, vqaEval.accuracy['perQuestionType'][quesType]))
+        #     # print("\n")
+        #     print("Per Answer Type Accuracy is the following:")
+        #     for ansType in vqaEval.accuracy['perAnswerType']:
+        #         print("%s : %.02f" % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
+        #     print("\n")
 
-            if val_ckpt_flag:
-                print('Write to log file: {}'.format(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.CKPT_VERSION + '.txt',
-                    'a+')
-                )
+        #     if val_ckpt_flag:
+        #         print('Write to log file: {}'.format(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.CKPT_VERSION + '.txt',
+        #             'a+')
+        #         )
 
-                logfile = open(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.CKPT_VERSION + '.txt',
-                    'a+'
-                )
+        #         logfile = open(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.CKPT_VERSION + '.txt',
+        #             'a+'
+        #         )
 
-            else:
-                print('Write to log file: {}'.format(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.VERSION + '.txt',
-                    'a+')
-                )
+        #     else:
+        #         print('Write to log file: {}'.format(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.VERSION + '.txt',
+        #             'a+')
+        #         )
 
-                logfile = open(
-                    self.__C.LOG_PATH +
-                    'log_run_' + self.__C.VERSION + '.txt',
-                    'a+'
-                )
+        #         logfile = open(
+        #             self.__C.LOG_PATH +
+        #             'log_run_' + self.__C.VERSION + '.txt',
+        #             'a+'
+        #         )
 
-            logfile.write("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
-            for ansType in vqaEval.accuracy['perAnswerType']:
-                logfile.write("%s : %.02f " % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
-            logfile.write("\n\n")
-            logfile.close()
+        #     logfile.write("Overall Accuracy is: %.02f\n" % (vqaEval.accuracy['overall']))
+        #     for ansType in vqaEval.accuracy['perAnswerType']:
+        #         logfile.write("%s : %.02f " % (ansType, vqaEval.accuracy['perAnswerType'][ansType]))
+        #     logfile.write("\n\n")
+        #     logfile.close()
 
 
     def run(self, run_mode):

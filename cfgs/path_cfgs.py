@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 import os
 
 class PATH:
@@ -21,23 +45,43 @@ class PATH:
     def init_path(self):
 
         self.IMG_FEAT_PATH = {
-            'train': self.FEATURE_PATH + 'train2014/',
+            'train': self.FEATURE_PATH + 'val2014/',
             'val': self.FEATURE_PATH + 'val2014/',
-            'test': self.FEATURE_PATH + 'test2015/',
+            'test': self.FEATURE_PATH + 'val2014/',
         }
+
+        # self.IMG_FEAT_PATH = {
+        #     'train': self.FEATURE_PATH + 'train2014/',
+        #     'val': self.FEATURE_PATH + 'val2014/',
+        #     'test': self.FEATURE_PATH + 'test2015/',
+        # }
 
         self.QUESTION_PATH = {
-            'train': self.DATASET_PATH + 'v2_OpenEnded_mscoco_train2014_questions.json',
-            'val': self.DATASET_PATH + 'v2_OpenEnded_mscoco_val2014_questions.json',
-            'test': self.DATASET_PATH + 'v2_OpenEnded_mscoco_test2015_questions.json',
-            'vg': self.DATASET_PATH + 'VG_questions.json',
+            'train': self.DATASET_PATH + 'question_train_8000.json',
+            'val': self.DATASET_PATH + 'question_test_2000.json',
+            'test': self.DATASET_PATH + 'question_test_2000.json',
         }
 
+        # self.QUESTION_PATH = {
+        #     'train': self.DATASET_PATH + 'v2_OpenEnded_mscoco_train2014_questions.json',
+        #     'val': self.DATASET_PATH + 'v2_OpenEnded_mscoco_val2014_questions.json',
+        #     'test': self.DATASET_PATH + 'v2_OpenEnded_mscoco_test2015_questions.json',
+        #     'vg': self.DATASET_PATH + 'VG_questions.json',
+        # }
+
         self.ANSWER_PATH = {
-            'train': self.DATASET_PATH + 'v2_mscoco_train2014_annotations.json',
-            'val': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
-            'vg': self.DATASET_PATH + 'VG_annotations.json',
+            'train': self.DATASET_PATH + 'answer_train_8000.json',
+            'val': self.DATASET_PATH + 'answer_test_2000.json',
+            # 'vg': self.DATASET_PATH + 'VG_annotations.json',
         }
+
+        # self.ANSWER_PATH = {
+        #     'train': self.DATASET_PATH + 'v2_mscoco_train2014_annotations.json',
+        #     'val': self.DATASET_PATH + 'v2_mscoco_val2014_annotations.json',
+        #     'vg': self.DATASET_PATH + 'VG_annotations.json',
+        # }
+
+        self.ANSWER_DICT = self.DATASET_PATH + 'answer_dict_th.json'
 
         self.RESULT_PATH = './results/result_test/'
         self.PRED_PATH = './results/pred/'

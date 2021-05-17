@@ -4,12 +4,38 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from core.model.net_utils import FC, MLP, LayerNorm
 from core.model.mca import MCA_ED
 
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
+
+from transformers import RobertaModel
 
 
 # ------------------------------
@@ -59,24 +85,26 @@ class AttFlat(nn.Module):
 # -------------------------
 
 class Net(nn.Module):
-    def __init__(self, __C, pretrained_emb, token_size, answer_size):
+    def __init__(self, __C, answer_size):
         super(Net, self).__init__()
 
-        self.embedding = nn.Embedding(
-            num_embeddings=token_size,
-            embedding_dim=__C.WORD_EMBED_SIZE
-        )
+        self.roberta_layer = RobertaModel.from_pretrained(__C.PRETRAINED_NAME, revision='main')
 
-        # Loading the GloVe embedding weights
-        if __C.USE_GLOVE:
-            self.embedding.weight.data.copy_(torch.from_numpy(pretrained_emb))
+        # self.embedding = nn.Embedding(
+        #     num_embeddings=token_size,
+        #     embedding_dim=__C.WORD_EMBED_SIZE
+        # )
 
-        self.lstm = nn.LSTM(
-            input_size=__C.WORD_EMBED_SIZE,
-            hidden_size=__C.HIDDEN_SIZE,
-            num_layers=1,
-            batch_first=True
-        )
+        # # Loading the GloVe embedding weights
+        # if __C.USE_GLOVE:
+        #     self.embedding.weight.data.copy_(torch.from_numpy(pretrained_emb))
+
+        # self.lstm = nn.LSTM(
+        #     input_size=__C.WORD_EMBED_SIZE,
+        #     hidden_size=__C.HIDDEN_SIZE,
+        #     num_layers=1,
+        #     batch_first=True
+        # )
 
         self.img_feat_linear = nn.Linear(
             __C.IMG_FEAT_SIZE,
@@ -92,24 +120,36 @@ class Net(nn.Module):
         self.proj = nn.Linear(__C.FLAT_OUT_SIZE, answer_size)
 
 
-    def forward(self, img_feat, ques_ix):
+    def forward(self, img_feat, ques_input_id, question_attention_mask):
 
         # Make mask
-        lang_feat_mask = self.make_mask(ques_ix.unsqueeze(2))
+        # lang_feat_mask = question_attention_mask
+        lang_feat_mask = question_attention_mask == 0
+        # lang_feat_mask = self.make_mask(ques_ix.unsqueeze(2))
         img_feat_mask = self.make_mask(img_feat)
 
         # Pre-process Language Feature
-        lang_feat = self.embedding(ques_ix)
-        lang_feat, _ = self.lstm(lang_feat)
+        lang_feat = self.roberta_layer(input_ids=ques_input_id, attention_mask=question_attention_mask)
+        # lang_feat = self.embedding(ques_ix)
+        # lang_feat, _ = self.lstm(lang_feat)
+        lang_feat_last = lang_feat['last_hidden_state']
 
         # Pre-process Image Feature
         img_feat = self.img_feat_linear(img_feat)
 
+        # print('shape before attention')
+        # print(lang_feat_last.shape)
+        # print(img_feat.shape)
+        # print(lang_feat_mask.shape)
+        # print(img_feat_mask.shape)
+
+        # print(lang_feat_mask)
+
         # Backbone Framework
         lang_feat, img_feat = self.backbone(
-            lang_feat,
+            lang_feat_last,
             img_feat,
-            lang_feat_mask,
+            lang_feat_mask.unsqueeze(1).unsqueeze(1),
             img_feat_mask
         )
 

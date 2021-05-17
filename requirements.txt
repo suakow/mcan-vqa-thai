@@ -1,5 +1,6 @@
 spacy >= 2.0.18
 numpy >= 1.16.2
-
-
-
+datasets 
+transformers 
+thai2transformers==0.1.0
+scikit-learn

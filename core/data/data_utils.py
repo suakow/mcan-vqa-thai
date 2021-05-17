@@ -4,9 +4,37 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from core.data.ans_punct import prep_ans
 import numpy as np
 import en_vectors_web_lg, random, re, json
+
+from transformers import CamembertTokenizerFast
+
+from pythainlp.util import normalize
 
 
 def shuffle_list(ans_list):
@@ -49,36 +77,46 @@ def ques_load(ques_list):
 
     return qid_to_ques
 
+def tokenize(stat_ques_list, pretrain_name='airesearch/wangchanberta-base-att-spm-uncased', maxlen = 416) :
+    tokenizer = CamembertTokenizerFast.from_pretrained(pretrain_name)
+    tokenized_dataset = []
+    for q in stat_ques_list :
+        q = q['question']
+        q = q.lower()
+        q = normalize(q)
+        tokenized_dataset.append(tokenizer(q, padding='max_length'))
 
-def tokenize(stat_ques_list, use_glove):
-    token_to_ix = {
-        'PAD': 0,
-        'UNK': 1,
-    }
+    return tokenized_dataset
 
-    spacy_tool = None
-    pretrained_emb = []
-    if use_glove:
-        spacy_tool = en_vectors_web_lg.load()
-        pretrained_emb.append(spacy_tool('PAD').vector)
-        pretrained_emb.append(spacy_tool('UNK').vector)
+# def tokenize(stat_ques_list, use_glove):
+#     token_to_ix = {
+#         'PAD': 0,
+#         'UNK': 1,
+#     }
 
-    for ques in stat_ques_list:
-        words = re.sub(
-            r"([.,'!?\"()*#:;])",
-            '',
-            ques['question'].lower()
-        ).replace('-', ' ').replace('/', ' ').split()
+#     spacy_tool = None
+#     pretrained_emb = []
+#     if use_glove:
+#         spacy_tool = en_vectors_web_lg.load()
+#         pretrained_emb.append(spacy_tool('PAD').vector)
+#         pretrained_emb.append(spacy_tool('UNK').vector)
 
-        for word in words:
-            if word not in token_to_ix:
-                token_to_ix[word] = len(token_to_ix)
-                if use_glove:
-                    pretrained_emb.append(spacy_tool(word).vector)
+#     for ques in stat_ques_list:
+#         words = re.sub(
+#             r"([.,'!?\"()*#:;])",
+#             '',
+#             ques['question'].lower()
+#         ).replace('-', ' ').replace('/', ' ').split()
 
-    pretrained_emb = np.array(pretrained_emb)
+#         for word in words:
+#             if word not in token_to_ix:
+#                 token_to_ix[word] = len(token_to_ix)
+#                 if use_glove:
+#                     pretrained_emb.append(spacy_tool(word).vector)
 
-    return token_to_ix, pretrained_emb
+#     pretrained_emb = np.array(pretrained_emb)
+
+#     return token_to_ix, pretrained_emb
 
 
 # def ans_stat(stat_ans_list, ans_freq):
@@ -128,26 +166,51 @@ def proc_img_feat(img_feat, img_feat_pad_size):
 
     return img_feat
 
+def proc_ques(ques, pretrain_name='airesearch/wangchanberta-base-att-spm-uncased', maxlen = 416):
+    tokenizer = CamembertTokenizerFast.from_pretrained(pretrain_name, model_max_length=maxlen)
+    q = ques['question']
+    q = q.lower()
+    q = normalize(q)
+    return tokenizer(q, return_tensors="pt", padding='max_length')
+    # ques_ix = np.zeros(max_token, np.int64)
 
-def proc_ques(ques, token_to_ix, max_token):
-    ques_ix = np.zeros(max_token, np.int64)
+    # words = re.sub(
+    #     r"([.,'!?\"()*#:;])",
+    #     '',
+    #     ques['question'].lower()
+    # ).replace('-', ' ').replace('/', ' ').split()
 
-    words = re.sub(
-        r"([.,'!?\"()*#:;])",
-        '',
-        ques['question'].lower()
-    ).replace('-', ' ').replace('/', ' ').split()
+    # for ix, word in enumerate(words):
+    #     if word in token_to_ix:
+    #         ques_ix[ix] = token_to_ix[word]
+    #     else:
+    #         ques_ix[ix] = token_to_ix['UNK']
 
-    for ix, word in enumerate(words):
-        if word in token_to_ix:
-            ques_ix[ix] = token_to_ix[word]
-        else:
-            ques_ix[ix] = token_to_ix['UNK']
-
-        if ix + 1 == max_token:
-            break
+    #     if ix + 1 == max_token:
+    #         break
 
     return ques_ix
+
+
+# def proc_ques(ques, token_to_ix, max_token):
+#     ques_ix = np.zeros(max_token, np.int64)
+
+#     words = re.sub(
+#         r"([.,'!?\"()*#:;])",
+#         '',
+#         ques['question'].lower()
+#     ).replace('-', ' ').replace('/', ' ').split()
+
+#     for ix, word in enumerate(words):
+#         if word in token_to_ix:
+#             ques_ix[ix] = token_to_ix[word]
+#         else:
+#             ques_ix[ix] = token_to_ix['UNK']
+
+#         if ix + 1 == max_token:
+#             break
+
+#     return ques_ix
 
 
 def get_score(occur):
@@ -163,20 +226,31 @@ def get_score(occur):
         return 1.
 
 
+# def proc_ans(ans, ans_to_ix):
+#     ans_score = np.zeros(ans_to_ix.__len__(), np.float32)
+#     ans_prob_dict = {}
+
+#     for ans_ in ans['answers']:
+#         ans_proc = prep_ans(ans_['answer'])
+#         if ans_proc not in ans_prob_dict:
+#             ans_prob_dict[ans_proc] = 1
+#         else:
+#             ans_prob_dict[ans_proc] += 1
+
+#     for ans_ in ans_prob_dict:
+#         if ans_ in ans_to_ix:
+#             ans_score[ans_to_ix[ans_]] = get_score(ans_prob_dict[ans_])
+
+#     return ans_score
+
 def proc_ans(ans, ans_to_ix):
     ans_score = np.zeros(ans_to_ix.__len__(), np.float32)
-    ans_prob_dict = {}
 
-    for ans_ in ans['answers']:
-        ans_proc = prep_ans(ans_['answer'])
-        if ans_proc not in ans_prob_dict:
-            ans_prob_dict[ans_proc] = 1
-        else:
-            ans_prob_dict[ans_proc] += 1
+    if ans['multiple_choice_answer'] in ans_to_ix :
+        ans_score[ans_to_ix[ans['multiple_choice_answer']]] = 1.0
 
-    for ans_ in ans_prob_dict:
-        if ans_ in ans_to_ix:
-            ans_score[ans_to_ix[ans_]] = get_score(ans_prob_dict[ans_])
+    else :
+        ans_score[ans_to_ix['0']] = 1.0
 
     return ans_score
 

@@ -4,6 +4,30 @@
 # Written by Yuhao Cui https://github.com/cuiyuhao1996
 # --------------------------------------------------------
 
+__author__ = "Puri Phakmongkol"
+__author_email__ = "me@puri.in.th"
+
+"""
+* NLP Project
+*
+* Created date : 04/05/2021
+*
++      o     +              o
+    +             o     +       +
+o          +
+    o  +           +        +
++        o     o       +        o
+-_-_-_-_-_-_-_,------,      o
+_-_-_-_-_-_-_-|   /\_/\
+-_-_-_-_-_-_-~|__( ^ .^)  +     +
+_-_-_-_-_-_-_-""  ""
++      o         o   +       o
+    +         +
+o      o  _-_-_-_- NLP Project
+    o           +
++      +     o        o      +
+"""
+
 from cfgs.path_cfgs import PATH
 # from path_cfgs import PATH
 
@@ -15,6 +39,10 @@ from types import MethodType
 class Cfgs(PATH):
     def __init__(self):
         super(Cfgs, self).__init__()
+
+        # ****** BERT *********
+        self.PRETRAINED_NAME = 'airesearch/wangchanberta-base-att-spm-uncased'
+        self.BERT_MAXLEN = 416
 
         # Set Devices
         # If use multi-gpu training, set e.g.'0, 1, 2' instead
@@ -81,7 +109,8 @@ class Cfgs(PATH):
         self.WORD_EMBED_SIZE = 300
 
         # Max length of question sentences
-        self.MAX_TOKEN = 14
+        # self.MAX_TOKEN = 14
+        self.MAX_TOKEN = 416
 
         # Filter the answer by occurrence
         # self.ANS_FREQ = 8

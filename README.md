@@ -22,3 +22,8 @@ The question-answer pairs for training and inference (test set) are included in 
 
 If you have done above steps. you can fine-tune the model for Thai language by [link](https://github.com/suakow/mcan-vqa-thai/blob/master/run_training.ipynb) by Google Colab or your machine. You have to change the image feature path before running. You can click this [link](https://colab.research.google.com/github/suakow/mcan-vqa-thai/blob/master/run_training.ipynb) to open with Google Colab directly.
  
+## Inference
+
+For inference, you have to download original image from this [link](http://images.cocodataset.org/zips/val2014.zip) for display images while inference.
+
+You have to setup as same as training step before running inference. The inference notebook is in this [link](https://github.com/suakow/mcan-vqa-thai/blob/master/run_inference.ipynb) or click this [link](https://colab.research.google.com/github/suakow/mcan-vqa-thai/blob/master/run_inference.ipynb) to open in Google Colab directly. You may have to change model weight file path(click [here](https://colab.research.google.com/github/suakow/mcan-vqa-thai/blob/master/run_inference.ipynb#scrollTo=mVsSPS24hYDl) to see the code) and original file path(click [here](https://colab.research.google.com/github/suakow/mcan-vqa-thai/blob/master/run_inference.ipynb#scrollTo=1iLQ3seHbnR-) to see the code) before running.

@@ -10,3 +10,4 @@ About the image feature, we used original extracted feature from original reposi
 
 ## Trianing
 
+You require Google Colaboratory-Pro with GPU enabled for training and inference.
